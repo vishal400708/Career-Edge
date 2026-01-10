@@ -50,12 +50,13 @@ const apiLimiter = rateLimit({
 
 // Define trusted origins - include Netlify, Vercel, and local development
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL?.replace(/\/$/, ""), // Remove trailing slash if present
   "https://rohitcarreredge.netlify.app",
   "https://carreredge.onrender.com",
+  "https://careeredgee.netlify.app",
+  "https://careeredge.netlify.app",
   "http://localhost:5173",
-
-
+  "http://127.0.0.1:5173"
 ].filter(Boolean);
 
 // Also allow all Vercel preview deployments
@@ -73,7 +74,7 @@ const corsOptions = {
     if (allowedOrigins.includes(origin) || vercelPattern.test(origin)) {
       callback(null, true);
     } else {
-      console.log("Blocked CORS origin:", origin);
+      console.log("Blocked CORS origin:", origin, "Allowed:", allowedOrigins);
       callback(new Error("Not allowed by CORS"));
     }
   },
