@@ -19,11 +19,18 @@ import connectionRoutes from "./routes/connection.route.js";
 import geminiRoutes from "./routes/gemini.route.js";
 import paymentRoutes from "./routes/payment.route.js";
 import perplexityRoutes from "./routes/perplexity.route.js";
+import debugRoutes from "./routes/debug.route.js";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 const __dirname = path.resolve();
+
+// When running behind a proxy (Render, Heroku, Vercel), trust the proxy so
+// that Express respects X-Forwarded-* headers (required for rate-limiting and
+// to detect secure requests). This prevents express-rate-limit validation errors
+// and allows proper secure cookie handling when the proxy terminates TLS.
+app.set('trust proxy', true);
 
 // Security middleware
 app.use(helmet({
@@ -117,6 +124,9 @@ app.get("/api/health", (req, res) => res.status(200).json({
   env: process.env.NODE_ENV || "development",
   corsOrigins: [...allowedOrigins, "(and all https://*.vercel.app deployments)"]
 }));
+
+// Debug endpoints (temporary) - exposes non-sensitive env flags and cookie checks
+app.use("/api/debug", apiLimiter, debugRoutes);
 
 // Register API routes with rate limiting
 app.use("/api/auth", authLimiter, authRoutes);
